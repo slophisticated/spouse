@@ -1,59 +1,50 @@
 local Players = game:GetService("Players")
-local Workspace = game:GetService("Workspace")
-local lp = Players.LocalPlayer
+local player = Players.LocalPlayer
 
--- Titik A (X Z dan ROTASI dipakai)
+-- KOORDINAT TUJUAN
 local PointA = CFrame.new(
-    -18200.3672, 34.0200882, -551.759155,
-    0.915695131, -0.0046, 0.4018,
-    0.0024, 0.9999, 0.0060,
-    -0.4018, -0.0045, 0.9156
+    -18158.0664, 34.5178947, -454.243683,
+    0.89404887, -0.000757645816, 0.447968811,
+    6.20140418e-06, 0.999998569, 0.00167891255,
+    -0.447969437, -0.0014982518, 0.894047618
 )
 
-local function getVehicle()
-    local char = lp.Character
-    if not char then return end
+local function teleportVehicle(character)
+    local vehicleSeat =
+        character:FindFirstChildWhichIsA("VehicleSeat", true)
+        or workspace:FindFirstChildWhichIsA("VehicleSeat", true)
 
-    local hum = char:FindFirstChildOfClass("Humanoid")
-    if hum and hum.SeatPart then
-        local car = hum.SeatPart:FindFirstAncestorWhichIsA("Model")
-        if car and car.PrimaryPart then
-            return car
-        end
-    end
-end
-
-local function raycastGround(pos)
-    local params = RaycastParams.new()
-    params.FilterType = Enum.RaycastFilterType.Blacklist
-    params.FilterDescendantsInstances = { lp.Character }
-
-    local origin = pos + Vector3.new(0, 200, 0)
-    local direction = Vector3.new(0, -500, 0)
-
-    return Workspace:Raycast(origin, direction, params)
-end
-
-local function teleportSafe()
-    local car = getVehicle()
-    if not car then
-        warn("Mobil ga ketemu")
+    if not vehicleSeat then
+        warn("VehicleSeat tidak ditemukan")
         return
     end
 
-    local root = car.PrimaryPart
-    local hit = raycastGround(PointA.Position)
-
-    if not hit then
-        warn("Aspal ga ke-detect")
+    local vehicleModel = vehicleSeat:FindFirstAncestorOfClass("Model")
+    if not vehicleModel or not vehicleModel.PrimaryPart then
+        warn("Model atau PrimaryPart tidak valid")
         return
     end
 
-    root.CFrame =
-        CFrame.new(hit.Position + Vector3.new(0, 5, 0))
-        * PointA.Rotation
+    local pp = vehicleModel.PrimaryPart
 
-    print("TP aman ke aspal")
+    -- Simpan velocity
+    local oldVel = pp.AssemblyLinearVelocity
+    local oldAng = pp.AssemblyAngularVelocity
+
+    -- Teleport
+    vehicleModel:PivotTo(PointA)
+
+    -- Restore velocity
+    pp.AssemblyLinearVelocity = oldVel
+    pp.AssemblyAngularVelocity = oldAng
 end
 
-teleportSafe()
+-- Trigger langsung
+if player.Character then
+    teleportVehicle(player.Character)
+end
+
+player.CharacterAdded:Connect(function(character)
+    task.wait(0.2)
+    teleportVehicle(character)
+end)
