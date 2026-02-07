@@ -42,31 +42,23 @@ end
 
 -- Teleport player with vehicle to starting position
 function AutoFarmLogic:TeleportWithVehicle(position)
-    local character = self.Player.Character
-    if not character then 
-        warn("Character not found!")
+    local args = {
+        CFrame.new(-18201.427734375, 35.660972595214844, -577.551513671875, 0.9684789180755615, -0.11916763335466385, 0.21874108910560608, 0.21634814143180847, 0.8376425504684448, -0.5015460848808289, -0.12345877289772034, 0.5330610275268555, 0.8370208144187927),
+        CFrame.new(-18121.8125, 52.93954849243164, -434.3309326171875, 0.9280281662940979, 0.004116744268685579, 0.37248721718788147, 0.036326222121715546, 0.9941729307174683, -0.10149210691452026, -0.3707345128059387, 0.10771859437227249, 0.9224709272384644),
+        306.72869873046875
+    }
+    
+    local success = pcall(function()
+        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("UnauthorizedTeleport"):FireServer(unpack(args))
+    end)
+    
+    if success then
+        print("Teleported using RemoteEvent")
+        return true
+    else
+        warn("Teleport failed!")
         return false
     end
-    
-    local vehicle = self:GetVehicle()
-    
-    if vehicle then
-        -- Teleport vehicle
-        if vehicle:FindFirstChild("PrimaryPart") then
-            vehicle:SetPrimaryPartCFrame(CFrame.new(position))
-        elseif vehicle:FindFirstChildWhichIsA("BasePart") then
-            vehicle:FindFirstChildWhichIsA("BasePart").CFrame = CFrame.new(position)
-        end
-        print("Teleported with vehicle to:", position)
-    else
-        -- Teleport player only
-        if character:FindFirstChild("HumanoidRootPart") then
-            character.HumanoidRootPart.CFrame = CFrame.new(position)
-            print("Teleported player to:", position)
-        end
-    end
-    
-    return true
 end
 
 -- Start auto-drive
