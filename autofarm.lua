@@ -50,7 +50,6 @@ end
 -- Set speed
 function AutoFarmLogic:SetSpeed(speed)
     self.CurrentSpeed = math.clamp(speed, 100, 710)
-    print("⚙️ Speed set to: " .. self.CurrentSpeed .. " studs/s")
 end
 
 -- Start autofarm
@@ -59,8 +58,6 @@ function AutoFarmLogic:Start(teleportPosition)
         warn("⚠️ AutoFarm already running!")
         return
     end
-    
-    print("🚗 AutoFarm STARTING...")
     
     -- ========== TELEPORT TO POINT A FIRST ==========
     local char = self.Player.Character
@@ -73,8 +70,6 @@ function AutoFarmLogic:Start(teleportPosition)
             if vehicleModel and vehicleModel.PrimaryPart then
                 local pp = vehicleModel.PrimaryPart
                 
-                print("📍 Teleporting to Point A...")
-                
                 -- Simpan velocity
                 local oldVel = pp.AssemblyLinearVelocity or Vector3.zero
                 local oldAng = pp.AssemblyAngularVelocity or Vector3.zero
@@ -85,8 +80,6 @@ function AutoFarmLogic:Start(teleportPosition)
                 -- Restore velocity
                 pp.AssemblyLinearVelocity = oldVel
                 pp.AssemblyAngularVelocity = oldAng
-                
-                print("✅ Teleported to Point A!")
                 
                 -- Wait sebentar biar settle
                 task.wait(0.3)
@@ -104,10 +97,6 @@ function AutoFarmLogic:Start(teleportPosition)
     wasInFront = nil
     justTeleported = false
     printTimer = 0
-    
-    print("🚗 AutoFarm STARTED!")
-    print("   Speed: " .. self.CurrentSpeed .. " studs/s")
-    print("   Target: Point B")
     
     -- Main loop
     heartbeatConn = RunService.Heartbeat:Connect(function(dt)
@@ -164,7 +153,6 @@ function AutoFarmLogic:Start(teleportPosition)
             
             -- Detect crossing
             if wasInFront == true and isInFront == false and not justTeleported then
-                print("🔥 CROSSED TARGET! Teleporting...")
                 
                 justTeleported = true
                 
@@ -175,8 +163,6 @@ function AutoFarmLogic:Start(teleportPosition)
                 
                 currentTarget = nextTarget
                 wasInFront = nil
-                
-                print("✅ Teleported! Next target: " .. (currentTarget == PointB and "Point B" or "Point A"))
                 
                 task.delay(3, function()
                     justTeleported = false
@@ -194,7 +180,6 @@ function AutoFarmLogic:Start(teleportPosition)
             if printTimer >= 5 then
                 printTimer = 0
                 local targetName = (currentTarget == PointB) and "Point B" or "Point A"
-                print("📊 To " .. targetName .. ": " .. math.floor(distance) .. " studs | Speed: " .. self.CurrentSpeed)
             end
         end)
     end)
@@ -216,8 +201,6 @@ function AutoFarmLogic:StopAutoDrive()
     
     wasInFront = nil
     justTeleported = false
-    
-    print("🛑 AutoFarm STOPPED!")
 end
 
 -- Cleanup on character removing
@@ -226,7 +209,4 @@ AutoFarmLogic.Player.CharacterRemoving:Connect(function()
         AutoFarmLogic:StopAutoDrive()
     end
 end)
-
-print("✅ AutoFarm Logic loaded!")
-
 return AutoFarmLogic
